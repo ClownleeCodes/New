@@ -1,0 +1,193 @@
+{% extends 'sanskrit/base.html' %} {% block body %} {% load static %}
+<link
+  href="https://fonts.googleapis.com/css?family=Concert+One|Josefin+Sans|Paytone+One&display=swap"
+  rel="stylesheet"
+/>
+
+<div class="main">
+  <h2>Lesson : {{my_lesson.lesson_name}}</h2>
+  <div class="centerbar">
+    <div class="col-md-8 skills-bar">
+      <div class="progress">
+        <div class="progress-bar"></div>
+      </div>
+    </div>
+  </div>
+  <div class="display"></div>
+  <div id="description" style="display:none">
+    <div id="desc_image">
+      <img src="" id="desc_img" />
+      <canvas id="canvas"></canvas>
+    </div>
+    <div id="desc_text" style="margin-bottom: 20px;"></div>
+  </div>
+  <div id="typing" style="display:none" autofocus>
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{% static 'css/keyboard.css' %}" />
+    <div id="question"></div>
+    <!-- <input type="text" id="typing_input" class="use-keyboard-input" /><br /> -->
+    <textarea
+      class="use-keyboard-input"
+      id="typing_input"
+      placeholder="Type in Sanskrit/English"
+    ></textarea
+    ><br />
+    <div id="res"></div>
+  </div>
+
+  <div id="select" style="display:none">
+    <link rel="stylesheet" href="{% static 'css/select.css' %}" />
+
+    <section id="services">
+      <div id="question"></div>
+
+      <div id="input">
+        <div class="row2 services">
+          <div class="grid-container">
+            <div class="grid-item">
+              <!-- <div id="select_display"></div> {{q.ans_image.url}}-->
+              <button id="0" onclick="select_click(this.id)">
+                <div class="img_text">
+                  <div class="icon">
+                    <img
+                      class="icon1"
+                      style="width: 100%; float: left; margin-right: 10px; height: 80px;"
+                    />
+                  </div>
+
+                  <div class="choices" id="choices0"></div>
+                </div>
+              </button>
+            </div>
+
+            <div class="grid-item">
+              <!-- <div id="select_display"></div> {{q.ans_image.url}}-->
+              <button id="1" onclick="select_click(this.id)">
+                <div class="img_text">
+                  <div class="icon">
+                    <img
+                      class="icon1"
+                      style="width: 100%; float: left; margin-right: 10px; height: 80px;"
+                    />
+                  </div>
+
+                  <div class="choices" id="choices1"></div>
+                </div>
+              </button>
+            </div>
+
+            <div class="grid-item">
+              <!-- <div id="select_display"></div> {{q.ans_image.url}} {{q}}-->
+              <button id="2" onclick="select_click(this.id)">
+                <div class="img_text">
+                  <div class="icon">
+                    <img
+                      class="icon1"
+                      style="width: 100%; float: left; margin-right: 10px;  height: 80px;"
+                    />
+                  </div>
+
+                  <div class="choices" id="choices2"></div>
+                </div>
+              </button>
+            </div>
+
+            <div class="grid-item">
+              <!-- <div id="select_display"></div> {{q.ans_image.url}}-->
+              <button id="3" onclick="select_click(this.id)">
+                <div class="img_text">
+                  <div class="icon">
+                    <img
+                      class="icon1"
+                      style="width: 100%; float: left; margin-right: 10px; height: 80px;"
+                    />
+                  </div>
+
+                  <div class="choices" id="choices3"></div>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div id="res"></div>
+  </div>
+
+  <div id="jump" style="display:none">
+    <link rel="stylesheet" href="{% static 'css/jump.css'%}" />
+    <div id="question"></div>
+    <div class="centerline">
+      <div id="final_ans"></div>
+    </div>
+    <div id="ans_button"></div>
+    <div id="res"></div>
+  </div>
+
+  <div id="submit"></div>
+
+  <div id="Modal" class="modal" style="display:none">
+    <link
+      href="https://fonts.googleapis.com/css?family=Acme&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{% static 'css/checking.css' %}" />
+    <!-- <div id="right_css"></div> -->
+
+    <!-- Modal content -->
+    <div id="Modal-content" class="modal-content">
+      <!-- <div class="grid-container"> -->
+      <div class="grid-item1">
+        <div id="check_symbol"></div>
+      </div>
+      <div class="grid-item2">
+        <p id="crct"></p>
+        <button id="proceed_btn" onclick="myFunction();">Proceed</button>
+      </div>
+      <div class="grid-item3">
+        <span class="close">&times;</span>
+      </div>
+      <!-- </div> -->
+    </div>
+
+    <!-- <script src="keyboard.js"></script> -->
+  </div>
+  <link rel="stylesheet" href="{% static 'css/lesson.css'%}" />
+  <script src="{% static 'js/keyboard.js' %}"></script>
+
+  <script>
+    var selected_ans = "";
+    var data = JSON.parse("{{serialized_questions|escapejs}}");
+    var ans_choice_data = JSON.parse("{{serialized_q_choices|escapejs}}");
+    var lesson_name = data[0].fields.key_question;
+    var i = 0,
+      flag = 0,
+      progress_percent = 0,
+      desc_id = 0,
+      j = 0;
+
+    // Enter key
+    $(document).on("keypress", function(e) {
+      if (flag == 0) {
+        if (e.which == 13) {
+          document.getElementById("submit_btn").click();
+          flag = 1;
+        }
+      } else {
+        document.getElementById("proceed_btn").click();
+        flag = 0;
+      }
+    });
+  </script>
+  <script src="{% static 'js/lesson_validate.js' %}"></script>
+  <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+  {% endblock %}
+</div>

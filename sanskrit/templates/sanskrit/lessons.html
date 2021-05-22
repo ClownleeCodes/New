@@ -1,0 +1,91 @@
+{% extends 'sanskrit/base.html' %} {% load static %} {% block body %}
+<link rel="stylesheet" href="{% static 'css/lessons.css' %}" />
+
+<section id="body">
+  <div class="container">
+    <div class="grid-container">
+      {% for lesson in my_lessons %}
+
+      <div class="grid-item">
+        <div class="card">
+          <div class="face face1">
+            <div class="content">
+              <img src="{{lesson.lesson_icon.url}}" style="min-width: 100px; min-height: 100px;" />
+            </div>
+          </div>
+          <div class="face face2">
+            <div class="content">
+              <h4>Lesson :<span> {{lesson.lesson_name}}</span></h4>
+              <p>
+                {{lesson.lessons_description}}
+              </p>
+              <div id="{{lesson.lesson_name}}">
+                <!-- <a href="{{lesson.lesson_name}}">Start</a> -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% include 'sanskrit/navbar.html' %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+  // Lesson lock
+  var user_profile_data = JSON.parse("{{serialized_user_profiles|escapejs}}");
+  var lessons_data = JSON.parse("{{serialized_lesson_list|escapejs}}");
+  var first_lesson = lessons_data[0].pk;
+  var q_number = 0;
+
+  const onHover = () => {
+    var card = document.getElementsByClassName("card")[q_number];
+    var face1 = document.getElementsByClassName("face1")[q_number];
+    var face2 = document.getElementsByClassName("face2")[q_number];
+    $(card).hover(
+      function () {
+        $(face1).css("transform", "translateY(0)");
+        $(face2).css("transform", "translateY(0)");
+      },
+      function () {
+        $(face1).css("transform", "translateY(100px)");
+        $(face2).css("transform", "translateY(-100px)");
+      }
+    );
+  };
+
+  document.getElementById(
+    `${first_lesson}`
+  ).innerHTML = `<a href=${first_lesson}>Start</a>`;
+  onHover();
+
+  for (let i = 0; i < lessons_data.length; i++) {
+    var lesson = lessons_data[i].pk;
+    if (i == lessons_data.length - 1) break; //last lesson
+    user_profile_data.forEach(element => {
+      if (element.fields.lesson_key == lesson) {
+        q_number = lessons_data[i].fields.q_number;
+
+        var next_lesson = lessons_data[i + 1].pk;
+        var str = next_lesson.split(" ").join();
+        document.getElementById(
+          `${next_lesson}`
+        ).innerHTML = `<a href=${next_lesson.replace(/ /g, "")}>Start</a>`;
+        onHover(); //hover lock
+      }
+    });
+    // if (typeof user_profile_data[q_number - 2] == "undefined") {
+    //   break;
+    // }
+    // if (user_profile_data[q_number - 2].fields.completed == true) {
+    //   var str = lesson.split(" ").join();
+    //   document.getElementById(
+    //     `${lesson}`
+    //   ).innerHTML = `<a href=${lesson.replace(/ /g, "")}>Start</a>`;
+    //   onHover(); //hover lock
+    // }
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'sanskrit/base.html' %} {% load static %}
+{% block body %}
+{% include 'sanskrit/navbar.html' %}
+<link rel="stylesheet" href="{% static 'css/log.css' %}" />
+
+<div class="my_container">
+  <div class="center_container">
+    <form method="post">
+      <h1>Login</h1>
+      {% csrf_token %} {{ form.as_p}}
+      <button type="submit" id="login_submit">Login</button>
+      <span>Click here to&nbsp;<a href="{% url 'accounts:register' %}">Register</a></span>
+    </form>
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert">
+      {{message}}
+    </div>
+    {% endfor %}
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}
